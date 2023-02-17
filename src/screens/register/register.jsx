@@ -129,7 +129,7 @@ const Register = ({ navigation }) => {
           />
           <Button title="Register" onPress={validate} />
           <Text
-            onPress={() => navigation.navigate("LoginScreen")}
+            onPress={() => navigation.navigate("Login")}
             style={{
               color: COLORS.black,
               fontWeight: "bold",
