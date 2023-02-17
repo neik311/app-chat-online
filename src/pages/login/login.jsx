@@ -1,13 +1,40 @@
 // import { View, Text } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StyleSheet, View } from "react-native";
 import { TextInput, Button } from "@react-native-material/core";
+import { login, loginByToken } from "../../api/apiUser";
+import { userContext } from "../../context/userContext";
 
-const Login = () => {
+const Login = ({ navigation }) => {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const handleLogin = () => {
-    console.log({ id, password });
+
+  const { user, setUser } = useContext(userContext);
+  useEffect(() => {
+    const fetchData = async () => {
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      if (refreshToken) {
+        const res = await loginByToken(refreshToken);
+        if (res.statusCode === "200") {
+          await AsyncStorage.setItem("accessToken", res.data?.accessToken);
+          setUser(res.data);
+          navigation.navigate("Home");
+        }
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleLogin = async () => {
+    const res = await login(id, password);
+    console.log(res);
+    if (res.statusCode === "200") {
+      await AsyncStorage.setItem("accessToken", res.data.accessToken);
+      await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
+      setUser(res.data);
+      navigation.navigate("Home");
+    }
   };
   return (
     <View style={styles.login}>
@@ -41,6 +68,9 @@ const Login = () => {
       <Button
         title="Register"
         style={{ width: 120, marginLeft: "auto", marginRight: "auto" }}
+        onPress={() => {
+          navigation.navigate("Register");
+        }}
       />
     </View>
   );

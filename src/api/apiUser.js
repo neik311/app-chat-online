@@ -13,10 +13,10 @@ const login = async (email, password) => {
   }
 };
 
-const loginByToken = async (token) => {
+const loginByToken = async (refreshToken) => {
   try {
     const res = await axios.post(`${apiURL}/user/login-token`, {
-      token: token,
+      refreshToken: refreshToken,
     });
     return res.data;
   } catch (error) {
@@ -31,27 +31,6 @@ const registerUser = async (user) => {
   } catch (err) {}
 };
 
-const createGroup = async (sender, receive) => {
-  try {
-    const res = await axios.post(`${apiURL}/group/create-group`, {
-      sender: sender,
-      receive: receive,
-    });
-    return res.data;
-  } catch (error) {
-    console.log(`${error}`);
-  }
-};
-
-const getGroupByUser = async (username) => {
-  try {
-    const res = await axios.get(`${apiURL}/group/get-group/${username}`);
-    return res.data;
-  } catch (error) {
-    console.log(`${error}`);
-  }
-};
-
 const getUserByUsername = async (username) => {
   try {
     const res = await axios.get(`${apiURL}/user/get-user?id=${username}`);
@@ -61,34 +40,21 @@ const getUserByUsername = async (username) => {
   }
 };
 
-const createMessages = async (groupId, messages, sender) => {
-  try {
-    const res = await axios.post(`${apiURL}/messages/create-messages`, {
-      groupId: groupId,
-      messages: messages,
-      sender: sender,
-    });
-    return res.data;
-  } catch (error) {
-    console.log(`${error}`);
-  }
-};
-
-const getMessagesInGroup = async (groupId) => {
-  try {
-    const res = await axios.get(`${apiURL}/messages/get-messages/${groupId}`);
-    return res.data;
-  } catch (error) {
-    console.log(`${error}`);
-  }
-};
-
 const updateUser = async (newUser) => {
   try {
-    const res = await axios.put(`${apiURL}/user/update-user`, newUser, {
-      authorization: localStorage.getItem("token"),
-    });
-    return res.data;
+    const fetchData = async () => {
+      const res = await axios.put(`${apiURL}/user/update-user`, newUser, {
+        headers: { access_token: localStorage.getItem("accessToken") },
+      });
+      return res.data;
+    };
+    let data = await fetchData();
+    if (data.statusCode === "410") {
+      const user = await loginByToken(localStorage.getItem("refreshToken"));
+      localStorage.setItem("accessToken", user.data.accessToken);
+      data = await fetchData();
+    }
+    return data;
   } catch (error) {
     console.log(`${error}`);
   }
@@ -104,16 +70,11 @@ const getUser = async (textSearch) => {
     console.log(`${error}`);
   }
 };
-
 export {
   login,
   registerUser,
   loginByToken,
-  createGroup,
-  getGroupByUser,
   getUserByUsername,
-  createMessages,
-  getMessagesInGroup,
   updateUser,
   getUser,
 };
