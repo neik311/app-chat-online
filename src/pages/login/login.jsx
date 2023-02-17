@@ -28,7 +28,6 @@ const Login = ({ navigation }) => {
 
   const handleLogin = async () => {
     const res = await login(id, password);
-    console.log(res);
     if (res.statusCode === "200") {
       await AsyncStorage.setItem("accessToken", res.data.accessToken);
       await AsyncStorage.setItem("refreshToken", res.data.refreshToken);

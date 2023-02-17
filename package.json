@@ -21,7 +21,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@react-navigation/native-stack": "^6.9.10"
+    "@react-navigation/native-stack": "^6.9.10",
+    "react-native-elements": "^3.4.3",
+    "react-native-paper": "^5.2.0"
   },
   "private": true
 }

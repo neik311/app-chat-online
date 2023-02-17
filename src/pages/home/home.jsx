@@ -7,7 +7,6 @@ import Top from "../../components/top/top";
 
 export default function Home() {
   const { user, setUser } = useContext(userContext);
-  console.log(user);
   return (
     <View>
       <Top />
