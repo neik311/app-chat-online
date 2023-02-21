@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React from "react";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import React, { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import {
   View,
   Text,
@@ -7,22 +9,37 @@ import {
   Keyboard,
   ScrollView,
   Alert,
+  Image,
 } from "react-native";
-
 import COLORS from "../../fonts/colors";
 import Button from "../../components/button/button";
 import Input from "../../components/input/input";
 import Loader from "../../components/loader/loader";
+import { uploadFile } from "../../ultis/uploadFile";
 
 const Register = ({ navigation }) => {
-  const [inputs, setInputs] = React.useState({
+  const [inputs, setInputs] = useState({
+    id: "",
     email: "",
-    fullname: "",
-    phone: "",
+    firstName: "",
+    lastName: "",
+    describe: "",
     password: "",
+    cfPassword: "",
   });
-  const [errors, setErrors] = React.useState({});
-  const [loading, setLoading] = React.useState(false);
+  const [image, setImage] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleOpenFile = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    setImage(result.assets[0].uri);
+  };
 
   const validate = () => {
     Keyboard.dismiss();
@@ -36,13 +53,18 @@ const Register = ({ navigation }) => {
       isValid = false;
     }
 
-    if (!inputs.fullname) {
-      handleError("Please input fullname", "fullname");
+    if (!inputs.id) {
+      handleError("Please input username", "id");
       isValid = false;
     }
 
-    if (!inputs.phone) {
-      handleError("Please input phone number", "phone");
+    if (!inputs.firstName) {
+      handleError("Please input first name", "firstName");
+      isValid = false;
+    }
+
+    if (!inputs.lastName) {
+      handleError("Please input last number", "lastName");
       isValid = false;
     }
 
@@ -54,22 +76,33 @@ const Register = ({ navigation }) => {
       isValid = false;
     }
 
+    if (inputs.password !== inputs.cfPassword) {
+      handleError("Confirm password is incorrect", "cfPassword");
+      isValid = false;
+    }
+    if (!image && isValid === true) {
+      Alert.alert("Error", "Hãy chọn avatar");
+      isValid = false;
+    }
     if (isValid) {
       register();
     }
   };
 
-  const register = () => {
+  const register = async () => {
     setLoading(true);
-    setTimeout(() => {
-      try {
-        setLoading(false);
-        AsyncStorage.setItem("userData", JSON.stringify(inputs));
-        navigation.navigate("Login");
-      } catch (error) {
-        Alert.alert("Error", "Something went wrong");
-      }
-    }, 3000);
+    const avatarUrl = await uploadFile(image, inputs.id);
+    console.log(avatarUrl);
+    setLoading(false);
+    // setTimeout(() => {
+    //   try {
+    //     setLoading(false);
+    //     AsyncStorage.setItem("userData", JSON.stringify(inputs));
+    //     navigation.navigate("Login");
+    //   } catch (error) {
+    //     Alert.alert("Error", "Something went wrong");
+    //   }
+    // }, 3000);
   };
 
   const handleOnchange = (text, input) => {
@@ -92,6 +125,14 @@ const Register = ({ navigation }) => {
         </Text>
         <View style={{ marginVertical: 20 }}>
           <Input
+            onChangeText={(text) => handleOnchange(text, "id")}
+            onFocus={() => handleError(null, "id")}
+            iconName="email-outline"
+            label="Tên đăng nhập"
+            placeholder="Enter username"
+            error={errors.id}
+          />
+          <Input
             onChangeText={(text) => handleOnchange(text, "email")}
             onFocus={() => handleError(null, "email")}
             iconName="email-outline"
@@ -101,22 +142,30 @@ const Register = ({ navigation }) => {
           />
 
           <Input
-            onChangeText={(text) => handleOnchange(text, "fullname")}
-            onFocus={() => handleError(null, "fullname")}
+            onChangeText={(text) => handleOnchange(text, "firstName")}
+            onFocus={() => handleError(null, "firstName")}
             iconName="account-outline"
-            label="Full Name"
-            placeholder="Enter your full name"
-            error={errors.fullname}
+            label="Họ"
+            placeholder="Enter your first name"
+            error={errors.firstName}
           />
 
           <Input
-            keyboardType="numeric"
-            onChangeText={(text) => handleOnchange(text, "phone")}
-            onFocus={() => handleError(null, "phone")}
-            iconName="phone-outline"
-            label="Phone Number"
+            onChangeText={(text) => handleOnchange(text, "lastName")}
+            onFocus={() => handleError(null, "lastName")}
+            iconName="account-outline"
+            label="Tên"
+            placeholder="Enter your last name"
+            error={errors.lastName}
+          />
+
+          <Input
+            onChangeText={(text) => handleOnchange(text, "describe")}
+            onFocus={() => handleError(null, "describe")}
+            iconName="email-outline"
+            label="Mô tả"
             placeholder="Enter your phone no"
-            error={errors.phone}
+            error={errors.describe}
           />
           <Input
             onChangeText={(text) => handleOnchange(text, "password")}
@@ -127,6 +176,36 @@ const Register = ({ navigation }) => {
             error={errors.password}
             password
           />
+          <Input
+            onChangeText={(text) => handleOnchange(text, "cfPassword")}
+            onFocus={() => handleError(null, "cfPassword")}
+            iconName="lock-outline"
+            label="confirm password"
+            placeholder="Enter confirm password password"
+            error={errors.cfPassword}
+            password
+          />
+          <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+            <Text
+              style={{
+                color: COLORS.grey,
+                fontSize: 18,
+                marginVertical: 10,
+                marginTop: 30,
+              }}
+            >
+              Avatar
+            </Text>
+            <View style={{ width: 150, marginLeft: 20 }}>
+              <Button title="Chọn ảnh" onPress={handleOpenFile} />
+            </View>
+          </View>
+          {image && (
+            <Image
+              source={{ uri: image }}
+              style={{ width: 200, height: 200 }}
+            />
+          )}
           <Button title="Register" onPress={validate} />
           <Text
             onPress={() => navigation.navigate("Login")}
