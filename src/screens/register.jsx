@@ -11,13 +11,13 @@ import {
   Alert,
   Image,
 } from "react-native";
-import COLORS from "../../fonts/colors";
-import Button from "../../components/button/button";
-import Input from "../../components/input/input";
-import Loader from "../../components/loader/loader";
-import { uploadFile } from "../../ultis/uploadFile";
+import COLORS from "../fonts/colors";
+import Button from "../components/button";
+import Input from "../components/input";
+import Loader from "../components/loader";
+import { uploadFile } from "../ultis/uploadFile";
 
-const Register = ({ navigation }) => {
+const RegisterScreen = ({ navigation }) => {
   const [inputs, setInputs] = useState({
     id: "",
     email: "",
@@ -224,4 +224,4 @@ const Register = ({ navigation }) => {
   );
 };
 
-export default Register;
+export default RegisterScreen;

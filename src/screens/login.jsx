@@ -1,21 +1,36 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { View, Text, SafeAreaView, Keyboard, Alert } from "react-native";
-import COLORS from "../../fonts/colors";
-import Button from "../../components/button/button";
-import Input from "../../components/input/input";
+import COLORS from "../fonts/colors";
+import Button from "../components/button";
+import Input from "../components/input";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Loader from "../../components/loader/loader";
+import Loader from "../components/loader";
+import { userContext } from "../context/userContext";
+import { login, loginByToken } from "../api/apiUser";
 
-const Login = ({ navigation }) => {
-  const [inputs, setInputs] = React.useState({ email: "", password: "" });
-  const [errors, setErrors] = React.useState({});
-  const [loading, setLoading] = React.useState(false);
+const LoginScreen = ({ navigation }) => {
+  const [inputs, setInputs] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { user, setUser } = useContext(userContext);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      const res = await loginByToken(refreshToken);
+      if (res.statusCode === "200") {
+        setUser(res.data);
+        navigation.navigate("Home");
+      }
+    };
+    checkLogin();
+  }, []);
 
   const validate = async () => {
     Keyboard.dismiss();
     let isValid = true;
     if (!inputs.email) {
-      handleError("Please input email", "email");
+      handleError("Please input email/username", "email");
       isValid = false;
     }
     if (!inputs.password) {
@@ -23,33 +38,24 @@ const Login = ({ navigation }) => {
       isValid = false;
     }
     if (isValid) {
-      login();
+      handleLogin();
     }
   };
 
-  const login = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    setTimeout(async () => {
+    const res = await login(inputs.email, inputs.password);
+    console.log(res);
+    if (res.statusCode !== "200") {
+      handleError(res.message, "password");
       setLoading(false);
-      let userData = await AsyncStorage.getItem("userData");
-      if (userData) {
-        userData = JSON.parse(userData);
-        if (
-          inputs.email == userData.email &&
-          inputs.password == userData.password
-        ) {
-          navigation.navigate("Home");
-          AsyncStorage.setItem(
-            "userData",
-            JSON.stringify({ ...userData, loggedIn: true })
-          );
-        } else {
-          Alert.alert("Error", "Invalid Details");
-        }
-      } else {
-        Alert.alert("Error", "User does not exist");
-      }
-    }, 3000);
+      return;
+    }
+    await AsyncStorage.setItem("accessToken", res.data.accessToken);
+    await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
+    setUser(res.data);
+    setLoading(false);
+    navigation.navigate("Home");
   };
 
   const handleOnchange = (text, input) => {
@@ -75,7 +81,7 @@ const Login = ({ navigation }) => {
             onFocus={() => handleError(null, "email")}
             iconName="email-outline"
             label="Email"
-            placeholder="Enter your email address"
+            placeholder="Enter your email or username"
             error={errors.email}
           />
           <Input
@@ -105,4 +111,4 @@ const Login = ({ navigation }) => {
   );
 };
 
-export default Login;
+export default LoginScreen;

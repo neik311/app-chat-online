@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text } from "@react-native-material/core";
 import { View } from "react-native";
-import { userContext } from "../../context/userContext";
+import { userContext } from "../context/userContext";
 import { Searchbar } from "react-native-paper";
 
 export default function Top() {
@@ -14,12 +14,12 @@ export default function Top() {
   const onChangeSearch = (query) => setSearchQuery(query);
 
   return (
-    <View style={{ marginTop: "10%", height: "32%" }}>
+    <View style={{ marginTop: "10%", height: 100, backgroundColor: "#BDBDBD" }}>
       <Text
         variant="h6"
         style={{ marginLeft: 16, marginTop: 8, marginBottom: 8 }}
       >
-        Hi ! nvk
+        Hi ! {user.id}
       </Text>
       <Searchbar
         placeholder="Tìm kiếm"
@@ -29,7 +29,7 @@ export default function Top() {
           marginLeft: "auto",
           marginRight: "auto",
           width: "90%",
-          height: "50%",
+          height: "40%",
         }}
       />
     </View>
