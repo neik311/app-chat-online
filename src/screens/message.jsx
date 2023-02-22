@@ -64,7 +64,7 @@ export default function MessengerScreen({ navigation }) {
         style={{ width: "100%", height: "65%", backgroundColor: "red" }}
       >
         {messages.map((value) => (
-          <Message message={value} />
+          <Message message={value} user={user} oppositeUser={oppositeUser} />
         ))}
       </ScrollView>
       <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
