@@ -12,6 +12,7 @@ export default function MessengerScreen({ navigation }) {
   const route = useRoute();
   const { oppositeUser, groupId } = route.params;
   const [messages, setMessages] = useState([]);
+  const prevMessage = useRef();
 
   const scrollref = useRef();
   useEffect(() => {
@@ -27,7 +28,6 @@ export default function MessengerScreen({ navigation }) {
     };
     fetchData();
   }, []);
-  console.log("1");
   return (
     <View style={{ width: "100%", height: "100%" }}>
       <View
@@ -61,13 +61,24 @@ export default function MessengerScreen({ navigation }) {
         contentContainerStyle={{ flexGrow: 1 }}
         showsHorizontalScrollIndicator={false}
         ref={scrollref}
-        style={{ width: "100%", height: "65%", backgroundColor: "red" }}
+        style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
       >
-        {messages.map((value) => (
-          <Message message={value} user={user} oppositeUser={oppositeUser} />
+        {messages.map((value, index) => (
+          <Message
+            message={value}
+            prevMessage={prevMessage}
+            user={user}
+            key={index}
+          />
         ))}
       </ScrollView>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          width: "100%",
+        }}
+      >
         <TextInput
           label=""
           style={{

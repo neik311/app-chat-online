@@ -28,8 +28,13 @@ export default function ListConversation({ navigation }) {
         showsHorizontalScrollIndicator={false}
         style={{ width: "100%", height: "65%" }}
       >
-        {conversations.map((c) => (
-          <Conversation navigation={navigation} conversation={c} user={user} />
+        {conversations.map((c, index) => (
+          <Conversation
+            navigation={navigation}
+            conversation={c}
+            user={user}
+            key={index}
+          />
         ))}
       </ScrollView>
     </View>
