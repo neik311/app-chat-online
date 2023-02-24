@@ -1,4 +1,5 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiURL } from "../config/config";
 
 const login = async (email, password) => {
@@ -13,11 +14,13 @@ const login = async (email, password) => {
   }
 };
 
-const loginByToken = async (refreshToken) => {
+const loginByToken = async () => {
   try {
+    const refreshToken = await AsyncStorage.getItem("refreshToken");
     const res = await axios.post(`${apiURL}/user/login-token`, {
       refreshToken: refreshToken,
     });
+    // console.log(res.data);
     return res.data;
   } catch (error) {
     console.log(`${error}`);
@@ -43,15 +46,16 @@ const getUserByUsername = async (username) => {
 const updateUser = async (newUser) => {
   try {
     const fetchData = async () => {
+      const accessToken = await AsyncStorage.getItem("accessToken");
       const res = await axios.put(`${apiURL}/user/update-user`, newUser, {
-        headers: { access_token: localStorage.getItem("accessToken") },
+        headers: { access_token: accessToken },
       });
       return res.data;
     };
     let data = await fetchData();
     if (data.statusCode === "410") {
-      const user = await loginByToken(localStorage.getItem("refreshToken"));
-      localStorage.setItem("accessToken", user.data.accessToken);
+      const user = await loginByToken();
+      await AsyncStorage.setItem("accessToken", user.data.accessToken);
       data = await fetchData();
     }
     return data;

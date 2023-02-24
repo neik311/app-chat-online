@@ -16,8 +16,7 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     const checkLogin = async () => {
-      const refreshToken = await AsyncStorage.getItem("refreshToken");
-      const res = await loginByToken(refreshToken);
+      const res = await loginByToken();
       if (res.statusCode === "200") {
         setUser(res.data);
         navigation.navigate("Home");

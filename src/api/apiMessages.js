@@ -1,10 +1,12 @@
 import axios from "axios";
 import { apiURL } from "../config/config";
 import { loginByToken } from "./apiUser";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const createMessages = async (groupId, messages, sender) => {
   try {
     const fetchData = async () => {
+      const accessToken = await AsyncStorage.getItem("accessToken");
       const res = await axios.post(
         `${apiURL}/messages/create-messages`,
         {
@@ -13,20 +15,20 @@ const createMessages = async (groupId, messages, sender) => {
           sender: sender,
         },
         {
-          headers: { access_token: localStorage.getItem("accessToken") },
+          headers: { access_token: accessToken },
         }
       );
       return res.data;
     };
     let data = await fetchData();
     if (data.statusCode === "410") {
-      const user = await loginByToken(localStorage.getItem("refreshToken"));
-      localStorage.setItem("accessToken", user.data.accessToken);
+      const user = await loginByToken();
+      await AsyncStorage.setItem("accessToken", user.data.accessToken);
       data = await fetchData();
     }
     return data;
   } catch (error) {
-    console.log(`${error}`);
+    console.log(`ERROR : ${error}`);
   }
 };
 

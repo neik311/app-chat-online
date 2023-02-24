@@ -7,18 +7,13 @@ import Top from "../components/top";
 import UserOnline from "../components/userOnline";
 import ListConversation from "../components/listConversation";
 import Menu from "../components/menu";
-import { io } from "socket.io-client";
-import { apiURL } from "../config/config";
-
-const socket = io(apiURL);
 
 export default function HomeScreen({ navigation }) {
-  const { user, setUser } = useContext(userContext);
+  const { user, socket } = useContext(userContext);
   const [onlineUsers, setOnlineUsers] = useState([]);
   useEffect(() => {
     socket.emit("addUser", { id: user?.id, avatar: user?.avatar });
   }, []);
-  // console.log(onlineUsers);
 
   useEffect(() => {
     socket.on("getUsers", (users) => {

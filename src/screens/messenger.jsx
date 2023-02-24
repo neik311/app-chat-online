@@ -3,21 +3,36 @@ import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
 import { userContext } from "../context/userContext";
-import { getMessagesInGroup } from "../api/apiMessages";
+import { getMessagesInGroup, createMessages } from "../api/apiMessages";
 import Message from "../components/message";
 import Icon from "react-native-vector-icons/Ionicons";
 
 export default function MessengerScreen({ navigation }) {
-  const { user } = useContext(userContext);
+  const { user, socket } = useContext(userContext);
   const route = useRoute();
   const { oppositeUser, groupId } = route.params;
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
   const prevMessage = useRef();
 
   const scrollref = useRef();
   useEffect(() => {
     scrollref.current.scrollToEnd({ animated: true });
   }, [messages]);
+
+  useEffect(() => {
+    //console.log("current chat ",currentChat)
+    socket.on("getMessage", (data) => {
+      if (data.senderId === user.id || data.senderId === oppositeUser.id) {
+        const arrivalMessage = {
+          sender: data.senderId,
+          messages: data.text,
+          createAt: new Date(),
+        };
+        setMessages((messages) => [...messages, arrivalMessage]);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +43,24 @@ export default function MessengerScreen({ navigation }) {
     };
     fetchData();
   }, []);
+
+  const handleSendMessages = async () => {
+    if (newMessage === "") {
+      return;
+    }
+
+    socket.emit("sendMessage", {
+      senderId: user.id,
+      receiverId: oppositeUser.id,
+      text: newMessage,
+    });
+
+    const res = await createMessages(groupId, newMessage, user.id);
+    if (res.statusCode === "200") {
+      setMessages([...messages, res.data]);
+    }
+    setNewMessage("");
+  };
   return (
     <View style={{ width: "100%", height: "100%" }}>
       <View
@@ -86,9 +119,13 @@ export default function MessengerScreen({ navigation }) {
             marginBottom: 30,
             width: "80%",
           }}
+          onChangeText={(text) => {
+            setNewMessage(text);
+          }}
+          value={newMessage}
         />
         <TouchableOpacity
-          onPress={() => console.log("Send message")}
+          onPress={handleSendMessages}
           style={{ marginTop: 25, marginLeft: 15 }}
         >
           <Icon name="send" size={25} color="#0431B4" />

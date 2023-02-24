@@ -16,9 +16,13 @@ export default function UserOnline({ onlineUsers }) {
       }}
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {/* {onlineUsers.map((user) => (
-          <Avatar image={{ uri: user.avatar }} style={{ marginLeft: 10 }} />
-        ))} */}
+        {onlineUsers.map((user, index) => (
+          <Avatar
+            image={{ uri: user.avatar }}
+            style={{ marginLeft: 20 }}
+            key={index}
+          />
+        ))}
         {/* <Avatar image={{ uri: "" }} style={{ marginLeft: 10 }} /> */}
       </ScrollView>
       {onlineUsers.length === 0 && (
