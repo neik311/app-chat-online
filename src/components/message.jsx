@@ -1,6 +1,5 @@
-import { useState, useEffect, useContext, useRef } from "react";
-import { View, TouchableHighlight } from "react-native";
-import { Text, TextInput, Avatar } from "@react-native-material/core";
+import { View } from "react-native";
+import { Text } from "@react-native-material/core";
 import moment from "moment";
 import Line from "../components/line";
 
@@ -13,8 +12,8 @@ export default function Message({ message, user, prevMessage }) {
   if (!prevMessage.current) {
     lineTime = true;
   } else if (
-    message.createAt.toString().split("T")[0] !==
-    prevMessage.current.createAt.toString().split("T")[0]
+    moment(message.createAt).format("DD/MM/YYYY") !==
+    moment(prevMessage.current.createAt).format("DD/MM/YYYY")
   ) {
     lineTime = true;
   }

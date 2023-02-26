@@ -1,15 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { View, ScrollView } from "react-native";
-import { Text } from "@react-native-material/core";
-import { Stack, Avatar } from "@react-native-material/core";
-import { ListItem } from "@react-native-material/core";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { userContext } from "../context/userContext";
+import { notifiContext } from "../context/notifiContext";
 import { getGroupByUser } from "../api/apiGroup";
 import Conversation from "./conversation";
 
 export default function ListConversation({ navigation }) {
   const { user } = useContext(userContext);
+  const { loadData } = useContext(notifiContext);
   const [conversations, setConversations] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +18,7 @@ export default function ListConversation({ navigation }) {
       }
     };
     fetchData();
-  }, []);
+  }, [loadData]);
   // console.log(conversations);
   return (
     <View>

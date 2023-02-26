@@ -6,12 +6,15 @@ import { View } from "react-native";
 import { userContext } from "../context/userContext";
 import { Searchbar } from "react-native-paper";
 
-export default function Top() {
+export default function Top({ navigation }) {
   const { user, setUser } = useContext(userContext);
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const onChangeSearch = (query) => setSearchQuery(query);
+  const handleSearch = () => {
+    navigation.navigate("Search", { searchQuery });
+  };
 
   return (
     <View style={{ marginTop: "10%", height: 100, backgroundColor: "#BDBDBD" }}>
@@ -31,6 +34,7 @@ export default function Top() {
           width: "90%",
           height: "40%",
         }}
+        onSubmitEditing={handleSearch}
       />
     </View>
   );

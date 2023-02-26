@@ -1,6 +1,5 @@
 // import { StatusBar } from "expo-status-bar";
 import { useState, useEffect, useContext } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
 import { userContext } from "../context/userContext";
 import Top from "../components/top";
@@ -23,7 +22,7 @@ export default function HomeScreen({ navigation }) {
   }, []);
   return (
     <View style={{ width: "100%", height: "100%" }}>
-      <Top />
+      <Top navigation={navigation} />
       <UserOnline onlineUsers={onlineUsers} />
       <ListConversation navigation={navigation} />
       <Menu />

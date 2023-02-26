@@ -8,7 +8,9 @@ export default function Menu() {
       style={{
         backgroundColor: "#81F7D8",
         width: "100%",
-        height: 100,
+        height: 60,
+        marginTop: "auto",
+        marginBottom: 0,
         flexDirection: "row",
         flexWrap: "wrap",
       }}

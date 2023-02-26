@@ -2,7 +2,6 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
-import InvertibleScrollView from "react-native-invertible-scroll-view";
 import { userContext } from "../context/userContext";
 import { getMessagesInGroup, createMessages } from "../api/apiMessages";
 import Message from "../components/message";
@@ -92,25 +91,6 @@ export default function MessengerScreen({ navigation }) {
           {oppositeUser.id}
         </Text>
       </View>
-      {/* <InvertibleScrollView
-        inverted
-        ref={(ref) => {
-          this.scrollView = ref;
-        }}
-        onContentSizeChange={() => {
-          this.scrollView.scrollTo({ y: 0, animated: true });
-        }}
-        style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
-      >
-        {messages.map((value, index) => (
-          <Message
-            message={value}
-            prevMessage={prevMessage}
-            user={user}
-            key={index}
-          />
-        ))}
-      </InvertibleScrollView> */}
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsHorizontalScrollIndicator={false}

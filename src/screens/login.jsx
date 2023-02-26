@@ -5,6 +5,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "../components/loader";
+import { notifiContext } from "../context/notifiContext";
 import { userContext } from "../context/userContext";
 import { login, loginByToken } from "../api/apiUser";
 
@@ -12,7 +13,8 @@ const LoginScreen = ({ navigation }) => {
   const [inputs, setInputs] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { user, setUser } = useContext(userContext);
+  const { setNotifi } = useContext(notifiContext);
+  const { setUser } = useContext(userContext);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -20,6 +22,7 @@ const LoginScreen = ({ navigation }) => {
       if (res.statusCode === "200") {
         setUser(res.data);
         navigation.navigate("Home");
+        setNotifi(["Đăng nhập thành công"]);
       }
     };
     checkLogin();
@@ -46,8 +49,8 @@ const LoginScreen = ({ navigation }) => {
     const res = await login(inputs.email, inputs.password);
     console.log(res);
     if (res.statusCode !== "200") {
-      handleError(res.message, "password");
       setLoading(false);
+      setNotifi([res.message, "error"]);
       return;
     }
     await AsyncStorage.setItem("accessToken", res.data.accessToken);
@@ -55,6 +58,7 @@ const LoginScreen = ({ navigation }) => {
     setUser(res.data);
     setLoading(false);
     navigation.navigate("Home");
+    setNotifi(["Đăng nhập thành công"]);
   };
 
   const handleOnchange = (text, input) => {
