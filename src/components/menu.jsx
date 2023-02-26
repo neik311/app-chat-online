@@ -2,7 +2,7 @@
 import { View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-export default function Menu() {
+export default function Menu({ navigation }) {
   return (
     <View
       style={{
@@ -25,6 +25,9 @@ export default function Menu() {
           size={45}
           color="#000"
           style={{ marginLeft: "auto", marginRight: "auto", marginTop: 3 }}
+          onPress={() => {
+            navigation.navigate("Home");
+          }}
         />
       </View>
       <View

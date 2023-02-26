@@ -25,7 +25,7 @@ export default function HomeScreen({ navigation }) {
       <Top navigation={navigation} />
       <UserOnline onlineUsers={onlineUsers} />
       <ListConversation navigation={navigation} />
-      <Menu />
+      <Menu navigation={navigation} />
     </View>
   );
 }

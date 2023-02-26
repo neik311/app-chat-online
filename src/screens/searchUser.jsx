@@ -166,7 +166,7 @@ export default function SearchScreen({ navigation }) {
           </View>
         )}
       </View>
-      <Menu />
+      <Menu navigation={navigation} />
     </View>
   );
 }
