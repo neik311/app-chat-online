@@ -81,7 +81,7 @@ export default function SearchScreen({ navigation }) {
         setLoadData((load) => ++load);
         return;
       }
-      setNotifi([res?.message]);
+      setNotifi([res?.message, "error"]);
       return;
     }
     const res = await deleteBlockUser(user.id, foundUser.id);
