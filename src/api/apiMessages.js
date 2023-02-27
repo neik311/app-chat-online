@@ -3,7 +3,7 @@ import { apiURL } from "../config/config";
 import { loginByToken } from "./apiUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const createMessages = async (groupId, messages, sender) => {
+const createMessages = async (groupId, messages, sender, type) => {
   try {
     const fetchData = async () => {
       const accessToken = await AsyncStorage.getItem("accessToken");
@@ -13,6 +13,7 @@ const createMessages = async (groupId, messages, sender) => {
           groupId: groupId,
           messages: messages,
           sender: sender,
+          type: type,
         },
         {
           headers: { access_token: accessToken },

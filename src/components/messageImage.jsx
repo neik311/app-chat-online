@@ -1,23 +1,18 @@
-import { View } from "react-native";
+import { View, Image } from "react-native";
 import { Text } from "@react-native-material/core";
 import moment from "moment";
-import Line from "../components/line";
+import Line from "./line";
 
-export default function Message({ message, user, prevMessage }) {
-  let length = "60%";
-  if (message.messages.length <= 18) {
-    length = (3 * message.messages.length + 8).toString() + "%";
-  }
+export default function MessageImage({ message, user, index, messages }) {
   let lineTime = false;
-  if (!prevMessage.current) {
+  if (index === messages.length - 1) {
     lineTime = true;
   } else if (
     moment(message.createAt).format("DD/MM/YYYY") !==
-    moment(prevMessage.current.createAt).format("DD/MM/YYYY")
+    moment(messages[index + 1].createAt).format("DD/MM/YYYY")
   ) {
     lineTime = true;
   }
-  prevMessage.current = message;
   // console.log(message.createAt.toString().split("T")[0]);
   return (
     <>
@@ -25,29 +20,25 @@ export default function Message({ message, user, prevMessage }) {
       {user.id === message.sender ? (
         <View
           style={{
-            width: length,
+            // width: length,
             height: "auto",
             marginTop: 15,
             marginRight: 15,
             marginLeft: "auto",
-            borderRadius: 20,
-            overflow: "hidden",
-            backgroundColor: "#417DC6",
           }}
         >
-          <Text
+          <Image
+            source={{ uri: message.messages }}
             style={{
-              paddingTop: 5,
-              paddingRight: 10,
-              paddingLeft: 10,
-              color: "white",
+              width: 180,
+              height: 150,
+              borderRadius: 20,
+              overflow: "hidden",
             }}
-          >
-            {message.messages}
-          </Text>
+          />
           <Text
             style={{
-              marginTop: -5,
+              marginTop: 0,
               color: "#0431B4",
               fontSize: 10,
               marginLeft: "auto",
@@ -60,26 +51,23 @@ export default function Message({ message, user, prevMessage }) {
       ) : (
         <View
           style={{
-            width: length,
+            width: 180,
             marginTop: 15,
             marginLeft: 10,
-            borderRadius: 20,
-            overflow: "hidden",
-            backgroundColor: "#E6E6E6",
           }}
         >
-          <Text
+          <Image
+            source={{ uri: message.messages }}
             style={{
-              paddingTop: 5,
-              paddingRight: 10,
-              paddingLeft: 10,
+              width: 180,
+              height: 150,
+              borderRadius: 20,
+              overflow: "hidden",
             }}
-          >
-            {message.messages}
-          </Text>
+          />
           <Text
             style={{
-              marginTop: -5,
+              marginTop: 0,
               color: "#424242",
               fontSize: 10,
               marginLeft: "auto",

@@ -4,7 +4,11 @@ import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
 import { userContext } from "../context/userContext";
 import { getMessagesInGroup, createMessages } from "../api/apiMessages";
-import Message from "../components/message";
+import InvertibleScrollView from "react-native-invertible-scroll-view";
+import * as ImagePicker from "expo-image-picker";
+// import Icon from "react-native-vector-icons/FontAwesome";
+import MessageText from "../components/messageText";
+import MessageImage from "../components/messageImage";
 import Icon from "react-native-vector-icons/Ionicons";
 
 export default function MessengerScreen({ navigation }) {
@@ -12,13 +16,16 @@ export default function MessengerScreen({ navigation }) {
   const route = useRoute();
   const { oppositeUser, groupId } = route.params;
   const [messages, setMessages] = useState([]);
+  const [typeMessage, setTypeMessage] = useState("text");
   const [newMessage, setNewMessage] = useState("");
-  const prevMessage = useRef();
+  const [image, setImage] = useState(null);
 
   const scrollref = useRef();
+  // console.log(messages);
 
   useEffect(() => {
-    scrollref.current.scrollTo({ y: messages.length * 50, animated: true });
+    // scrollref.current.scrollTo({ y: messages.length * 50, animated: true });
+    scrollref.current.scrollTo({ y: 0, animated: true });
   }, [messages]);
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export default function MessengerScreen({ navigation }) {
           messages: data.text,
           createAt: new Date(),
         };
-        setMessages((messages) => [...messages, arrivalMessage]);
+        setMessages((messages) => [arrivalMessage, ...messages]);
       }
     });
   }, []);
@@ -39,7 +46,7 @@ export default function MessengerScreen({ navigation }) {
     const fetchData = async () => {
       const res = await getMessagesInGroup(groupId);
       if (res.statusCode === "200") {
-        setMessages(res.data);
+        setMessages(res.data.reverse());
       }
     };
     fetchData();
@@ -56,12 +63,25 @@ export default function MessengerScreen({ navigation }) {
       text: newMessage,
     });
 
-    const res = await createMessages(groupId, newMessage, user.id);
+    const res = await createMessages(groupId, newMessage, user.id, typeMessage);
     if (res.statusCode === "200") {
-      setMessages([...messages, res.data]);
+      setMessages([res.data, ...messages]);
     }
     setNewMessage("");
   };
+
+  const handleOpenFile = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (result.assets) {
+      setImage(result?.assets[0]?.uri || null);
+    }
+  };
+
   return (
     <View style={{ width: "100%", height: "100%" }}>
       <View
@@ -91,21 +111,37 @@ export default function MessengerScreen({ navigation }) {
           {oppositeUser.id}
         </Text>
       </View>
-      <ScrollView
+      <InvertibleScrollView
+        inverted
+        ref={scrollref}
         contentContainerStyle={{ flexGrow: 1 }}
         showsHorizontalScrollIndicator={false}
-        ref={scrollref}
         style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
       >
-        {messages.map((value, index) => (
-          <Message
-            message={value}
-            prevMessage={prevMessage}
-            user={user}
-            key={index}
-          />
-        ))}
-      </ScrollView>
+        {messages.map((value, index) => {
+          return (
+            <>
+              {value.type === "image" ? (
+                <MessageImage
+                  message={value}
+                  user={user}
+                  index={index}
+                  messages={messages}
+                  key={index}
+                />
+              ) : (
+                <MessageText
+                  message={value}
+                  user={user}
+                  index={index}
+                  messages={messages}
+                  key={index}
+                />
+              )}
+            </>
+          );
+        })}
+      </InvertibleScrollView>
       <View
         style={{
           flexDirection: "row",
@@ -113,12 +149,19 @@ export default function MessengerScreen({ navigation }) {
           width: "100%",
         }}
       >
+        <Icon
+          name="image"
+          size={30}
+          color="#084B8A"
+          style={{ marginTop: 25 }}
+          onPress={handleOpenFile}
+        />
         <TextInput
           label=""
           style={{
             marginLeft: 20,
             marginBottom: 30,
-            width: "80%",
+            width: "70%",
           }}
           onChangeText={(text) => {
             setNewMessage(text);

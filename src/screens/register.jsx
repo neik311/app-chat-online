@@ -38,7 +38,9 @@ const RegisterScreen = ({ navigation }) => {
       aspect: [4, 3],
       quality: 1,
     });
-    setImage(result.assets[0].uri);
+    if (result.assets) {
+      setImage(result?.assets[0]?.uri);
+    }
   };
 
   const validate = () => {

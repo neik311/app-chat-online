@@ -8,7 +8,7 @@ export default function Menu({ navigation }) {
       style={{
         backgroundColor: "#81F7D8",
         width: "100%",
-        height: 60,
+        height: 55,
         marginTop: "auto",
         marginBottom: 0,
         flexDirection: "row",
