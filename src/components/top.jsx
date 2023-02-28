@@ -17,7 +17,7 @@ export default function Top({ navigation }) {
   };
 
   return (
-    <View style={{ marginTop: "10%", height: 100, backgroundColor: "#BDBDBD" }}>
+    <View style={{ marginTop: "10%", height: 100, backgroundColor: "#CEF6CE" }}>
       <Text
         variant="h6"
         style={{ marginLeft: 16, marginTop: 8, marginBottom: 8 }}

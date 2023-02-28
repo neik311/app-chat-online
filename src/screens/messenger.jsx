@@ -1,27 +1,33 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import { View, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
 import { userContext } from "../context/userContext";
 import { getMessagesInGroup, createMessages } from "../api/apiMessages";
 import InvertibleScrollView from "react-native-invertible-scroll-view";
 import * as ImagePicker from "expo-image-picker";
-// import Icon from "react-native-vector-icons/FontAwesome";
+import { uploadImage } from "../ultis/uploadFile";
 import MessageText from "../components/messageText";
 import MessageImage from "../components/messageImage";
 import Icon from "react-native-vector-icons/Ionicons";
+// import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function MessengerScreen({ navigation }) {
   const { user, socket } = useContext(userContext);
   const route = useRoute();
   const { oppositeUser, groupId } = route.params;
   const [messages, setMessages] = useState([]);
-  const [typeMessage, setTypeMessage] = useState("text");
   const [newMessage, setNewMessage] = useState("");
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const scrollref = useRef();
-  // console.log(messages);
 
   useEffect(() => {
     // scrollref.current.scrollTo({ y: messages.length * 50, animated: true });
@@ -35,6 +41,7 @@ export default function MessengerScreen({ navigation }) {
         const arrivalMessage = {
           sender: data.senderId,
           messages: data.text,
+          type: data.type,
           createAt: new Date(),
         };
         setMessages((messages) => [arrivalMessage, ...messages]);
@@ -53,20 +60,29 @@ export default function MessengerScreen({ navigation }) {
   }, []);
 
   const handleSendMessages = async () => {
-    if (newMessage === "") {
+    let sendMessage = newMessage;
+    if (sendMessage === "" && !image) {
       return;
     }
-
+    let type = "text";
+    if (image) {
+      type = "image";
+      setLoading(true);
+      sendMessage = await uploadImage(image, user.id);
+    }
     socket.emit("sendMessage", {
       senderId: user.id,
       receiverId: oppositeUser.id,
-      text: newMessage,
+      text: sendMessage,
+      type: type,
     });
 
-    const res = await createMessages(groupId, newMessage, user.id, typeMessage);
+    const res = await createMessages(groupId, sendMessage, user.id, type);
     if (res.statusCode === "200") {
       setMessages([res.data, ...messages]);
     }
+    setLoading(false);
+    setImage(null);
     setNewMessage("");
   };
 
@@ -74,25 +90,16 @@ export default function MessengerScreen({ navigation }) {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
     });
     if (result.assets) {
-      setImage(result?.assets[0]?.uri || null);
+      setImage(result?.assets[0]?.uri);
     }
   };
 
   return (
     <View style={{ width: "100%", height: "100%" }}>
-      <View
-        style={{
-          height: 68,
-          backgroundColor: "#01DFD7",
-          marginTop: "10%",
-          flexDirection: "row",
-          flexWrap: "wrap",
-        }}
-      >
+      <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
             name="arrow-back"
@@ -120,25 +127,23 @@ export default function MessengerScreen({ navigation }) {
       >
         {messages.map((value, index) => {
           return (
-            <>
-              {value.type === "image" ? (
-                <MessageImage
-                  message={value}
-                  user={user}
-                  index={index}
-                  messages={messages}
-                  key={index}
-                />
-              ) : (
+            <View key={index}>
+              {value.type === "text" ? (
                 <MessageText
                   message={value}
                   user={user}
                   index={index}
                   messages={messages}
-                  key={index}
+                />
+              ) : (
+                <MessageImage
+                  message={value}
+                  user={user}
+                  index={index}
+                  messages={messages}
                 />
               )}
-            </>
+            </View>
           );
         })}
       </InvertibleScrollView>
@@ -156,18 +161,38 @@ export default function MessengerScreen({ navigation }) {
           style={{ marginTop: 25 }}
           onPress={handleOpenFile}
         />
-        <TextInput
-          label=""
-          style={{
-            marginLeft: 20,
-            marginBottom: 30,
-            width: "70%",
-          }}
-          onChangeText={(text) => {
-            setNewMessage(text);
-          }}
-          value={newMessage}
-        />
+        {!image ? (
+          <TextInput
+            label=""
+            style={styles.textInput}
+            onChangeText={(text) => {
+              setNewMessage(text);
+            }}
+            value={newMessage}
+          />
+        ) : !loading ? (
+          <>
+            <Image source={{ uri: image }} style={styles.sendImage} />
+            <Icon
+              name="trash-bin-outline"
+              size={30}
+              color="red"
+              style={{ marginTop: 23, marginRight: 10 }}
+              onPress={() => {
+                setImage(null);
+              }}
+            />
+          </>
+        ) : (
+          <View style={{ width: 150, height: 120 }}>
+            <ActivityIndicator
+              size="large"
+              size={50}
+              style={{ marginTop: 20 }}
+              // size={50}
+            />
+          </View>
+        )}
         <TouchableOpacity
           onPress={handleSendMessages}
           style={{ marginTop: 25, marginLeft: 15 }}
@@ -178,3 +203,26 @@ export default function MessengerScreen({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: 68,
+    backgroundColor: "#01DFD7",
+    marginTop: "10%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  textInput: {
+    marginLeft: 20,
+    marginBottom: 30,
+    width: "70%",
+  },
+  sendImage: {
+    width: 150,
+    height: 120,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 30,
+    marginRight: 30,
+  },
+});

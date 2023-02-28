@@ -1,5 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -15,7 +13,7 @@ import COLORS from "../fonts/colors";
 import Button from "../components/button";
 import Input from "../components/input";
 import Loader from "../components/loader";
-import { uploadFile } from "../ultis/uploadFile";
+import { uploadAvatar } from "../ultis/uploadFile";
 
 const RegisterScreen = ({ navigation }) => {
   const [inputs, setInputs] = useState({
@@ -33,11 +31,13 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleOpenFile = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      // aspect: [4, 3],
       quality: 1,
+      // allowsMultipleSelection: true,
     });
+    console.log(result);
     if (result.assets) {
       setImage(result?.assets[0]?.uri);
     }
@@ -93,7 +93,7 @@ const RegisterScreen = ({ navigation }) => {
 
   const register = async () => {
     setLoading(true);
-    const avatarUrl = await uploadFile(image, inputs.id);
+    const avatarUrl = await uploadAvatar(image, inputs.id);
     console.log(avatarUrl);
     setLoading(false);
     // setTimeout(() => {
