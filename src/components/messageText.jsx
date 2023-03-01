@@ -1,9 +1,16 @@
+import { useState } from "react";
 import { View } from "react-native";
 import { Text } from "@react-native-material/core";
 import moment from "moment";
 import Line from "./line";
 
-export default function Message({ message, user, index, messages }) {
+export default function Message({
+  message,
+  user,
+  index,
+  messages,
+  setDeleteMes,
+}) {
   let length = "60%";
   if (message.messages.length <= 18) {
     length = (3 * message.messages.length + 8).toString() + "%";
@@ -40,6 +47,9 @@ export default function Message({ message, user, index, messages }) {
               paddingRight: 10,
               paddingLeft: 10,
               color: "white",
+            }}
+            onPress={() => {
+              setDeleteMes(message.id);
             }}
           >
             {message.messages}

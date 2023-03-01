@@ -1,9 +1,15 @@
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import { Text } from "@react-native-material/core";
 import moment from "moment";
 import Line from "./line";
 
-export default function MessageImage({ message, user, index, messages }) {
+export default function MessageImage({
+  message,
+  user,
+  index,
+  messages,
+  setDeleteMes,
+}) {
   let lineTime = false;
   if (index === messages.length - 1) {
     lineTime = true;
@@ -18,13 +24,16 @@ export default function MessageImage({ message, user, index, messages }) {
     <>
       {lineTime === true ? <Line time={message.createAt} /> : <></>}
       {user.id === message.sender ? (
-        <View
+        <TouchableOpacity
           style={{
             // width: length,
             height: "auto",
             marginTop: 15,
             marginRight: 15,
             marginLeft: "auto",
+          }}
+          onPress={() => {
+            setDeleteMes(message.id);
           }}
         >
           <Image
@@ -47,7 +56,7 @@ export default function MessageImage({ message, user, index, messages }) {
           >
             {moment(message.createAt).format("hh:mm")}
           </Text>
-        </View>
+        </TouchableOpacity>
       ) : (
         <View
           style={{

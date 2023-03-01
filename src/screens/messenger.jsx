@@ -9,7 +9,11 @@ import {
 import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
 import { userContext } from "../context/userContext";
-import { getMessagesInGroup, createMessages } from "../api/apiMessages";
+import {
+  getMessagesInGroup,
+  createMessages,
+  deleteMessagesInGroup,
+} from "../api/apiMessages";
 import InvertibleScrollView from "react-native-invertible-scroll-view";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "../ultis/uploadFile";
@@ -20,6 +24,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 
 export default function MessengerScreen({ navigation }) {
   const { user, socket } = useContext(userContext);
+  const [deleteMes, setDeleteMes] = useState();
   const route = useRoute();
   const { oppositeUser, groupId } = route.params;
   const [messages, setMessages] = useState([]);
@@ -97,27 +102,75 @@ export default function MessengerScreen({ navigation }) {
     }
   };
 
+  const hadleDeleteMes = async () => {
+    const res = await deleteMessagesInGroup(user.id, deleteMes);
+    if (res.statusCode === "200") {
+      const newMessages = messages.filter((m) => m.id !== deleteMes);
+      setMessages(newMessages);
+    }
+    setDeleteMes(null);
+  };
+
   return (
     <View style={{ width: "100%", height: "100%" }}>
-      <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon
-            name="arrow-back"
-            size={35}
-            color="#084B8A"
-            style={{ marginLeft: 15, marginTop: 15 }}
+      {!deleteMes ? (
+        <View style={styles.container}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon
+              name="arrow-back"
+              size={35}
+              color="#084B8A"
+              style={{ marginLeft: 15, marginTop: 15 }}
+            />
+          </TouchableOpacity>
+          <Avatar
+            image={{
+              uri: oppositeUser.avatar,
+            }}
+            style={{ marginTop: 5, marginLeft: 20 }}
           />
-        </TouchableOpacity>
-        <Avatar
-          image={{
-            uri: oppositeUser.avatar,
-          }}
-          style={{ marginTop: 5, marginLeft: 20 }}
-        />
-        <Text variant="h5" style={{ marginLeft: 20, marginTop: 15 }}>
-          {oppositeUser.id}
-        </Text>
-      </View>
+          <Text variant="h5" style={{ marginLeft: 20, marginTop: 15 }}>
+            {oppositeUser.id}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon
+              name="arrow-back"
+              size={35}
+              color="#084B8A"
+              style={{ marginLeft: 15, marginTop: 15 }}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              marginLeft: "25%",
+              marginTop: 15,
+              flexDirection: "row",
+              flexWrap: "wrap",
+            }}
+            onPress={() => {
+              setDeleteMes(null);
+            }}
+          >
+            <Icon name="ios-close-circle" size={35} color="#0000FF" />
+            <Text style={{ marginTop: 5 }}>Hủy</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              marginLeft: 25,
+              marginTop: 15,
+              flexDirection: "row",
+              flexWrap: "wrap",
+            }}
+            onPress={hadleDeleteMes}
+          >
+            <Icon name="trash-outline" size={35} color="#FF0000" />
+            <Text style={{ marginTop: 5 }}>Xóa</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <InvertibleScrollView
         inverted
         ref={scrollref}
@@ -134,6 +187,7 @@ export default function MessengerScreen({ navigation }) {
                   user={user}
                   index={index}
                   messages={messages}
+                  setDeleteMes={setDeleteMes}
                 />
               ) : (
                 <MessageImage
@@ -141,6 +195,7 @@ export default function MessengerScreen({ navigation }) {
                   user={user}
                   index={index}
                   messages={messages}
+                  setDeleteMes={setDeleteMes}
                 />
               )}
             </View>
