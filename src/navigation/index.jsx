@@ -7,6 +7,7 @@ import RegisterScreen from "../screens/register";
 import HomeScreen from "../screens/home";
 import MessengerScreen from "../screens/messenger";
 import SearchScreen from "../screens/searchUser";
+import ProfileScreen from "../screens/profile";
 import { notifiContext } from "../context/notifiContext";
 import Notifi from "../components/Notifi";
 
@@ -26,6 +27,7 @@ function AppNavigation() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Messenger" component={MessengerScreen} />
           <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       {notifi[0] && <Notifi notifi={notifi} setNotifi={setNotifi} />}

@@ -40,6 +40,9 @@ export default function Menu({ navigation }) {
           size={45}
           color="#000"
           style={{ marginLeft: "auto", marginRight: "auto", marginTop: 3 }}
+          onPress={() => {
+            navigation.navigate("Profile");
+          }}
         />
       </View>
     </View>

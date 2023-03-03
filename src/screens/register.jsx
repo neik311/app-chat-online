@@ -14,6 +14,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Loader from "../components/loader";
 import { uploadAvatar } from "../ultis/uploadFile";
+import { registerUser } from "../api/apiUser";
 
 const RegisterScreen = ({ navigation }) => {
   const [inputs, setInputs] = useState({
@@ -37,7 +38,7 @@ const RegisterScreen = ({ navigation }) => {
       quality: 1,
       // allowsMultipleSelection: true,
     });
-    console.log(result);
+    // console.log(result);
     if (result.assets) {
       setImage(result?.assets[0]?.uri);
     }
@@ -95,16 +96,23 @@ const RegisterScreen = ({ navigation }) => {
     setLoading(true);
     const avatarUrl = await uploadAvatar(image, inputs.id);
     console.log(avatarUrl);
+    const newUser = {
+      id: inputs.id,
+      firstName: inputs.firstName,
+      lastName: inputs.lastName,
+      email: inputs.email,
+      password: inputs.password,
+      avatar: avatarUrl,
+    };
+    const res = await registerUser(newUser);
+    if (res.statusCode === "200") {
+      navigation.navigate("Login");
+      setLoading(false);
+      setNotifi(["Đăng ký thành công, kiểm tra email để hoàn tất quá trình"]);
+      return;
+    }
+    setNotifi([res.message], "error");
     setLoading(false);
-    // setTimeout(() => {
-    //   try {
-    //     setLoading(false);
-    //     AsyncStorage.setItem("userData", JSON.stringify(inputs));
-    //     navigation.navigate("Login");
-    //   } catch (error) {
-    //     Alert.alert("Error", "Something went wrong");
-    //   }
-    // }, 3000);
   };
 
   const handleOnchange = (text, input) => {

@@ -7,7 +7,7 @@ export default function Notifi({ notifi, setNotifi }) {
     if (notifi[0]) {
       setTimeout(() => {
         setNotifi([null]);
-      }, 2500);
+      }, 1500);
     }
   }, []);
 
