@@ -3,30 +3,19 @@ import { View, Text, SafeAreaView, Keyboard, Alert } from "react-native";
 import COLORS from "../fonts/colors";
 import Button from "../components/button";
 import Input from "../components/input";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "../components/loader";
 import { notifiContext } from "../context/notifiContext";
-import { userContext } from "../context/userContext";
-import { login, loginByToken } from "../api/apiUser";
+import { forgotPassword } from "../api/apiUser";
 
-const LoginScreen = ({ navigation }) => {
-  const [inputs, setInputs] = useState({ email: "", password: "" });
+const ForgotPasswordScreen = ({ navigation }) => {
+  const [inputs, setInputs] = useState({
+    email: "",
+    password: "",
+    cfPassword: "",
+  });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { setNotifi } = useContext(notifiContext);
-  const { setUser } = useContext(userContext);
-
-  useEffect(() => {
-    const checkLogin = async () => {
-      const res = await loginByToken();
-      if (res.statusCode === "200") {
-        setUser(res.data);
-        navigation.navigate("Home");
-        setNotifi(["Đăng nhập thành công"]);
-      }
-    };
-    checkLogin();
-  }, []);
 
   const validate = async () => {
     Keyboard.dismiss();
@@ -38,27 +27,32 @@ const LoginScreen = ({ navigation }) => {
     if (!inputs.password) {
       handleError("Please input password", "password");
       isValid = false;
+    } else if (inputs.password.length < 6 || inputs.password.length > 15) {
+      handleError("password from 6 to 15 characters", "password");
+      isValid = false;
+    }
+
+    if (inputs.password !== inputs.cfPassword) {
+      handleError("Confirm password is incorrect", "cfPassword");
+      isValid = false;
     }
     if (isValid) {
-      handleLogin();
+      handleSubmit();
     }
   };
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     setLoading(true);
-    const res = await login(inputs.email, inputs.password);
+    let res = await forgotPassword(inputs.email, inputs.password);
     console.log(res);
-    if (res.statusCode !== "200") {
+    if (res.statusCode === "200") {
+      navigation.navigate("Login");
+      setNotifi(["Xác thực email của bạn để thay đổi mật khẩu"]);
       setLoading(false);
-      setNotifi([res.message, "error"]);
       return;
     }
-    await AsyncStorage.setItem("accessToken", res.data.accessToken);
-    await AsyncStorage.setItem("refreshToken", res.data.refreshToken);
-    setUser(res.data);
     setLoading(false);
-    navigation.navigate("Home");
-    setNotifi(["Đăng nhập thành công"]);
+    setNotifi([res.message, "error"]);
   };
 
   const handleOnchange = (text, input) => {
@@ -71,12 +65,9 @@ const LoginScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ backgroundColor: COLORS.white, flex: 1 }}>
       <Loader visible={loading} />
-      <View style={{ paddingTop: 50, paddingHorizontal: 20 }}>
-        <Text style={{ color: COLORS.black, fontSize: 40, fontWeight: "bold" }}>
-          Log In
-        </Text>
-        <Text style={{ color: COLORS.grey, fontSize: 18, marginVertical: 10 }}>
-          Enter Your Details to Login
+      <View style={{ paddingTop: 80, paddingHorizontal: 20 }}>
+        <Text style={{ color: COLORS.black, fontSize: 30, fontWeight: "bold" }}>
+          Forgot Password
         </Text>
         <View style={{ marginVertical: 20 }}>
           <Input
@@ -84,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
             onFocus={() => handleError(null, "email")}
             iconName="email-outline"
             label="Email"
-            placeholder="Enter your email or username"
+            placeholder="Enter your email"
             error={errors.email}
           />
           <Input
@@ -96,20 +87,18 @@ const LoginScreen = ({ navigation }) => {
             error={errors.password}
             password
           />
-          <Button title="Log In" onPress={validate} />
+          <Input
+            onChangeText={(text) => handleOnchange(text, "cfPassword")}
+            onFocus={() => handleError(null, "cfPassword")}
+            iconName="lock-outline"
+            label="Confirm Password"
+            placeholder="Enter your confirm password"
+            error={errors.cfPassword}
+            password
+          />
+          <Button title="Submit" onPress={validate} />
           <Text
-            onPress={() => navigation.navigate("ForgotPassword")}
-            style={{
-              color: "#2E64FE",
-              fontWeight: "bold",
-              textAlign: "center",
-              fontSize: 16,
-            }}
-          >
-            Forgot password
-          </Text>
-          <Text
-            onPress={() => navigation.navigate("Register")}
+            onPress={() => navigation.navigate("Login")}
             style={{
               color: COLORS.black,
               fontWeight: "bold",
@@ -117,7 +106,7 @@ const LoginScreen = ({ navigation }) => {
               fontSize: 16,
             }}
           >
-            Don't have account ?Register
+            Already have account ? Login
           </Text>
         </View>
       </View>
@@ -125,4 +114,4 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-export default LoginScreen;
+export default ForgotPasswordScreen;

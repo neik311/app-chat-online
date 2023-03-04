@@ -7,7 +7,7 @@ import { getGroupByUser } from "../api/apiGroup";
 import Conversation from "./conversation";
 
 export default function ListConversation({ navigation, fetchOnlineUser }) {
-  const { user } = useContext(userContext);
+  const { user, socket } = useContext(userContext);
   const { loadData } = useContext(notifiContext);
   const [conversations, setConversations] = useState([]);
   useEffect(() => {

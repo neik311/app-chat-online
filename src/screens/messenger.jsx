@@ -8,15 +8,23 @@ import {
 } from "react-native";
 import { Text, TextInput, Avatar } from "@react-native-material/core";
 import { useRoute } from "@react-navigation/native";
-import { userContext } from "../context/userContext";
+import InvertibleScrollView from "react-native-invertible-scroll-view";
+import * as ImagePicker from "expo-image-picker";
+import {
+  Provider,
+  Button,
+  Dialog,
+  DialogHeader,
+  DialogContent,
+  DialogActions,
+} from "@react-native-material/core";
 import {
   getMessagesInGroup,
   createMessages,
   deleteMessagesInGroup,
 } from "../api/apiMessages";
-import InvertibleScrollView from "react-native-invertible-scroll-view";
-import * as ImagePicker from "expo-image-picker";
 import { uploadImage } from "../ultis/uploadFile";
+import { userContext } from "../context/userContext";
 import MessageText from "../components/messageText";
 import MessageImage from "../components/messageImage";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -32,6 +40,7 @@ export default function MessengerScreen({ navigation }) {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadData, setLoadData] = useState(0);
+  const [visible, setVisible] = useState(false);
 
   const scrollref = useRef();
 
@@ -114,154 +123,176 @@ export default function MessengerScreen({ navigation }) {
         receiverId: oppositeUser.id,
       });
     }
+    setVisible(false);
     setDeleteMes(null);
   };
 
   return (
-    <View style={{ width: "100%", height: "100%" }}>
-      {!deleteMes ? (
-        <View style={styles.container}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon
-              name="arrow-back"
-              size={35}
-              color="#084B8A"
-              style={{ marginLeft: 15, marginTop: 15 }}
-            />
-          </TouchableOpacity>
-          <Avatar
-            image={{
-              uri: oppositeUser.avatar,
-            }}
-            style={{ marginTop: 5, marginLeft: 20 }}
-          />
-          <Text variant="h5" style={{ marginLeft: 20, marginTop: 15 }}>
-            {oppositeUser.id}
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon
-              name="arrow-back"
-              size={35}
-              color="#084B8A"
-              style={{ marginLeft: 15, marginTop: 15 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              marginLeft: "25%",
-              marginTop: 15,
-              flexDirection: "row",
-              flexWrap: "wrap",
-            }}
-            onPress={() => {
-              setDeleteMes(null);
-            }}
-          >
-            <Icon name="ios-close-circle" size={35} color="#0000FF" />
-            <Text style={{ marginTop: 5 }}>Hủy</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              marginLeft: 25,
-              marginTop: 15,
-              flexDirection: "row",
-              flexWrap: "wrap",
-            }}
-            onPress={hadleDeleteMes}
-          >
-            <Icon name="trash-outline" size={35} color="#FF0000" />
-            <Text style={{ marginTop: 5 }}>Xóa</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      <InvertibleScrollView
-        inverted
-        ref={scrollref}
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsHorizontalScrollIndicator={false}
-        style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
-      >
-        {messages.map((value, index) => {
-          return (
-            <View key={index}>
-              {value.type === "text" ? (
-                <MessageText
-                  message={value}
-                  user={user}
-                  index={index}
-                  messages={messages}
-                  setDeleteMes={setDeleteMes}
-                />
-              ) : (
-                <MessageImage
-                  message={value}
-                  user={user}
-                  index={index}
-                  messages={messages}
-                  setDeleteMes={setDeleteMes}
-                />
-              )}
-            </View>
-          );
-        })}
-      </InvertibleScrollView>
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          width: "100%",
-        }}
-      >
-        <Icon
-          name="image"
-          size={30}
-          color="#084B8A"
-          style={{ marginTop: 25 }}
-          onPress={handleOpenFile}
-        />
-        {!image ? (
-          <TextInput
-            label=""
-            style={styles.textInput}
-            onChangeText={(text) => {
-              setNewMessage(text);
-            }}
-            value={newMessage}
-          />
-        ) : !loading ? (
-          <>
-            <Image source={{ uri: image }} style={styles.sendImage} />
-            <Icon
-              name="trash-bin-outline"
-              size={30}
-              color="red"
-              style={{ marginTop: 23, marginRight: 10 }}
-              onPress={() => {
-                setImage(null);
+    <Provider>
+      <View style={{ width: "100%", height: "100%" }}>
+        {!deleteMes ? (
+          <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Icon
+                name="arrow-back"
+                size={35}
+                color="#084B8A"
+                style={{ marginLeft: 15, marginTop: 15 }}
+              />
+            </TouchableOpacity>
+            <Avatar
+              image={{
+                uri: oppositeUser.avatar,
               }}
+              style={{ marginTop: 5, marginLeft: 20 }}
             />
-          </>
+            <Text variant="h5" style={{ marginLeft: 20, marginTop: 15 }}>
+              {oppositeUser.id}
+            </Text>
+          </View>
         ) : (
-          <View style={{ width: 150, height: 120 }}>
-            <ActivityIndicator
-              size="large"
-              size={50}
-              style={{ marginTop: 20 }}
-              // size={50}
-            />
+          <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Icon
+                name="arrow-back"
+                size={35}
+                color="#084B8A"
+                style={{ marginLeft: 15, marginTop: 15 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                marginLeft: "25%",
+                marginTop: 15,
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+              onPress={() => {
+                setDeleteMes(null);
+              }}
+            >
+              <Icon name="ios-close-circle" size={35} color="#0000FF" />
+              <Text style={{ marginTop: 5 }}>Hủy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                marginLeft: 25,
+                marginTop: 15,
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+              onPress={() => {
+                setVisible(true);
+              }}
+            >
+              <Icon name="trash-outline" size={35} color="#FF0000" />
+              <Text style={{ marginTop: 5 }}>Xóa</Text>
+            </TouchableOpacity>
           </View>
         )}
-        <TouchableOpacity
-          onPress={handleSendMessages}
-          style={{ marginTop: 25, marginLeft: 15 }}
+        <InvertibleScrollView
+          inverted
+          ref={scrollref}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsHorizontalScrollIndicator={false}
+          style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
         >
-          <Icon name="send" size={25} color="#0431B4" />
-        </TouchableOpacity>
+          {messages.map((value, index) => {
+            return (
+              <View key={index}>
+                {value.type === "text" ? (
+                  <MessageText
+                    message={value}
+                    user={user}
+                    index={index}
+                    messages={messages}
+                    setDeleteMes={setDeleteMes}
+                  />
+                ) : (
+                  <MessageImage
+                    message={value}
+                    user={user}
+                    index={index}
+                    messages={messages}
+                    setDeleteMes={setDeleteMes}
+                  />
+                )}
+              </View>
+            );
+          })}
+        </InvertibleScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            width: "100%",
+          }}
+        >
+          <Icon
+            name="image"
+            size={30}
+            color="#084B8A"
+            style={{ marginTop: 25 }}
+            onPress={handleOpenFile}
+          />
+          {!image ? (
+            <TextInput
+              label=""
+              style={styles.textInput}
+              onChangeText={(text) => {
+                setNewMessage(text);
+              }}
+              value={newMessage}
+            />
+          ) : !loading ? (
+            <>
+              <Image source={{ uri: image }} style={styles.sendImage} />
+              <Icon
+                name="trash-bin-outline"
+                size={30}
+                color="red"
+                style={{ marginTop: 23, marginRight: 10 }}
+                onPress={() => {
+                  setImage(null);
+                }}
+              />
+            </>
+          ) : (
+            <View style={{ width: 150, height: 120 }}>
+              <ActivityIndicator
+                size="large"
+                size={50}
+                style={{ marginTop: 20 }}
+                // size={50}
+              />
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={handleSendMessages}
+            style={{ marginTop: 25, marginLeft: 15 }}
+          >
+            <Icon name="send" size={25} color="#0431B4" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+      <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+        <DialogHeader title="Xác nhận xóa tin nhắn" />
+        <DialogActions>
+          <Button
+            title="Hủy"
+            compact
+            variant="text"
+            onPress={() => setVisible(false)}
+          />
+          <Button
+            title="Xác nhận"
+            compact
+            variant="text"
+            onPress={hadleDeleteMes}
+          />
+        </DialogActions>
+      </Dialog>
+    </Provider>
   );
 }
 

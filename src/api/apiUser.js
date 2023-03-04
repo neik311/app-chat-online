@@ -74,6 +74,18 @@ const getUser = async (textSearch) => {
     console.log(`${error}`);
   }
 };
+
+const forgotPassword = async (email, password) => {
+  try {
+    const body = {
+      email,
+      password,
+    };
+    const res = await axios.post(`${apiURL}/user/forgot-password`, body);
+    return res.data;
+  } catch (err) {}
+};
+
 export {
   login,
   registerUser,
@@ -81,4 +93,5 @@ export {
   getUserByUsername,
   updateUser,
   getUser,
+  forgotPassword,
 };

@@ -74,8 +74,8 @@ const RegisterScreen = ({ navigation }) => {
     if (!inputs.password) {
       handleError("Please input password", "password");
       isValid = false;
-    } else if (inputs.password.length < 5) {
-      handleError("Min password length of 5", "password");
+    } else if (inputs.password.length < 6 || inputs.password.length > 15) {
+      handleError("password from 6 to 15 characters", "password");
       isValid = false;
     }
 
@@ -226,7 +226,7 @@ const RegisterScreen = ({ navigation }) => {
               fontSize: 16,
             }}
           >
-            Already have account ?Login
+            Already have account ? Login
           </Text>
         </View>
       </ScrollView>
