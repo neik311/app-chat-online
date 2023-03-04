@@ -6,7 +6,7 @@ import { notifiContext } from "../context/notifiContext";
 import { getGroupByUser } from "../api/apiGroup";
 import Conversation from "./conversation";
 
-export default function ListConversation({ navigation }) {
+export default function ListConversation({ navigation, fetchOnlineUser }) {
   const { user } = useContext(userContext);
   const { loadData } = useContext(notifiContext);
   const [conversations, setConversations] = useState([]);
@@ -19,6 +19,17 @@ export default function ListConversation({ navigation }) {
     };
     fetchData();
   }, [loadData]);
+
+  useEffect(() => {
+    socket.on("getConversations", async (users) => {
+      const res = await getGroupByUser(user?.id);
+      if (res.statusCode === "200") {
+        setConversations(res.data);
+      }
+      fetchOnlineUser(users);
+    });
+  }, []);
+
   // console.log(conversations);
   return (
     <View>

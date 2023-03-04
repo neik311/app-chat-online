@@ -31,6 +31,7 @@ export default function MessengerScreen({ navigation }) {
   const [newMessage, setNewMessage] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadData, setLoadData] = useState(0);
 
   const scrollref = useRef();
 
@@ -40,7 +41,6 @@ export default function MessengerScreen({ navigation }) {
   }, [messages]);
 
   useEffect(() => {
-    //console.log("current chat ",currentChat)
     socket.on("getMessage", (data) => {
       if (data.senderId === user.id || data.senderId === oppositeUser.id) {
         const arrivalMessage = {
@@ -52,6 +52,9 @@ export default function MessengerScreen({ navigation }) {
         setMessages((messages) => [arrivalMessage, ...messages]);
       }
     });
+    socket.on("getDeleteMessage", () => {
+      setLoadData((loadData) => ++loadData);
+    });
   }, []);
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function MessengerScreen({ navigation }) {
       }
     };
     fetchData();
-  }, []);
+  }, [loadData]);
 
   const handleSendMessages = async () => {
     let sendMessage = newMessage;
@@ -107,6 +110,9 @@ export default function MessengerScreen({ navigation }) {
     if (res.statusCode === "200") {
       const newMessages = messages.filter((m) => m.id !== deleteMes);
       setMessages(newMessages);
+      socket.emit("deleteMessage", {
+        receiverId: oppositeUser.id,
+      });
     }
     setDeleteMes(null);
   };

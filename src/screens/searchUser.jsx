@@ -23,7 +23,7 @@ export default function SearchScreen({ navigation }) {
   const route = useRoute();
   const { searchQuery } = route.params;
   // console.log(searchQuery);
-  const { user } = useContext(userContext);
+  const { user, socket } = useContext(userContext);
   const { setNotifi, setLoadData } = useContext(notifiContext);
   const [foundUser, setFoundUser] = useState();
   const [statusButton, setStatusButton] = useState([true, true]);
@@ -50,40 +50,47 @@ export default function SearchScreen({ navigation }) {
   }, []);
 
   const handleGroup = async () => {
+    // tạo kết nối
     if (statusButton[0] === true) {
       const res = await createGroup(user.id, foundUser.id);
       if (res.statusCode === "200") {
         setStatusButton([false, statusButton[1]]);
         setLoadData((load) => ++load);
         setNotifi([res?.message]);
+        handleConversations();
         return;
       }
       setNotifi([res?.message, "error"]);
       return;
     }
+    //hủy kết nối
     const res = await deleteGroup(user.id, foundUser.id);
     // console.log(res);
     if (res.statusCode === "200") {
       setNotifi(["Hủy kết nối thành công"]);
       setStatusButton([true, statusButton[1]]);
       setLoadData((load) => ++load);
+      handleConversations();
       return;
     }
     setNotifi(["Đã xảy ra lỗi", "error"]);
   };
 
   const handleBlock = async () => {
+    //chặn người dùng
     if (statusButton[1] === true) {
       const res = await createBlockUser(user.id, foundUser.id);
       if (res.statusCode === "200") {
         setNotifi([`Chặn ${foundUser?.id} thành công`]);
         setStatusButton([true, false]);
         setLoadData((load) => ++load);
+        handleConversations();
         return;
       }
       setNotifi([res?.message, "error"]);
       return;
     }
+    // hủy chặn
     const res = await deleteBlockUser(user.id, foundUser.id);
     // console.log(res);
     if (res.statusCode === "200") {
@@ -92,6 +99,13 @@ export default function SearchScreen({ navigation }) {
       return;
     }
     setNotifi([res?.message, "error"]);
+  };
+
+  const handleConversations = () => {
+    socket.emit("sendConversations", {
+      senderId: user.id,
+      receiveId: foundUser.id,
+    });
   };
 
   return (

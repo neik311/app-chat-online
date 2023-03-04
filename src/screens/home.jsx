@@ -6,6 +6,7 @@ import Top from "../components/top";
 import UserOnline from "../components/userOnline";
 import ListConversation from "../components/listConversation";
 import Menu from "../components/menu";
+import { getGroup } from "../api/apiGroup";
 
 export default function HomeScreen({ navigation }) {
   const { user, socket } = useContext(userContext);
@@ -16,25 +17,31 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     socket.on("getUsers", (users) => {
-      users = users.filter((u) => u.id !== user.id);
-      setOnlineUsers(users);
+      fetchOnlineUser(users);
     });
   }, []);
+
+  const fetchOnlineUser = async (users) => {
+    const newUser = [];
+    users.map(async (u) => {
+      const found = await getGroup(user.id, u.id);
+      if (found.data) {
+        newUser.push(u);
+        // console.log(newUser);
+        setOnlineUsers(newUser);
+      }
+    });
+  };
+
   return (
     <View style={{ width: "100%", height: "100%" }}>
       <Top navigation={navigation} />
       <UserOnline onlineUsers={onlineUsers} />
-      <ListConversation navigation={navigation} />
+      <ListConversation
+        navigation={navigation}
+        fetchOnlineUser={fetchOnlineUser}
+      />
       <Menu navigation={navigation} />
     </View>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// });
