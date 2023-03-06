@@ -174,7 +174,7 @@ const RegisterScreen = ({ navigation }) => {
             onFocus={() => handleError(null, "describe")}
             iconName="email-outline"
             label="Mô tả"
-            placeholder="Enter your phone no"
+            placeholder="Enter your describe"
             error={errors.describe}
           />
           <Input

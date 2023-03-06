@@ -193,7 +193,7 @@ export default function MessengerScreen({ navigation }) {
         <InvertibleScrollView
           inverted
           ref={scrollref}
-          contentContainerStyle={{ flexGrow: 1 }}
+          // contentContainerStyle={{ flexGrow: 1 }}
           showsHorizontalScrollIndicator={false}
           style={{ width: "100%", height: "65%", backgroundColor: "#FAFAFA" }}
         >

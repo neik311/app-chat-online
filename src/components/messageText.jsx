@@ -34,11 +34,13 @@ export default function Message({
             width: length,
             height: "auto",
             marginTop: 15,
+            marginBottom: 0,
             marginRight: 15,
             marginLeft: "auto",
             borderRadius: 20,
             overflow: "hidden",
             backgroundColor: "#417DC6",
+            // backgroundColor: "red",
           }}
         >
           <Text

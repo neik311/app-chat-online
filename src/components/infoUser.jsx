@@ -19,9 +19,9 @@ export default function InfoUser() {
   const { user, setUser } = useContext(userContext);
   const { setNotifi } = useContext(notifiContext);
 
-  const [firstName, setFirstName] = useState(user.firstName);
-  const [lastName, setLastName] = useState(user.lastName);
-  const [describe, setDescribe] = useState(user.describe);
+  const [firstName, setFirstName] = useState(user?.firstName);
+  const [lastName, setLastName] = useState(user?.lastName);
+  const [describe, setDescribe] = useState(user?.describe);
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,10 +52,10 @@ export default function InfoUser() {
     setLoading(true);
     let url = null;
     if (image) {
-      url = await uploadAvatar(image, user.id);
+      url = await uploadAvatar(image, user?.id);
     }
     let newUser = {
-      id: user.id,
+      id: user?.id,
       firstName: firstName,
       lastName: lastName,
       describe: describe,
@@ -83,14 +83,14 @@ export default function InfoUser() {
         <TextInput
           variant="outlined"
           label="Id"
-          value={user.id}
+          value={user?.id}
           editable={false}
           style={{ margin: 16, width: "80%" }}
         />
         <TextInput
           variant="outlined"
           label="Email"
-          value={user.email}
+          value={user?.email}
           editable={false}
           style={{ margin: 16, width: "80%" }}
         />

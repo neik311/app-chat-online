@@ -10,7 +10,7 @@ export default function ListBlock() {
   const [blockUser, setBlockUser] = useState([]);
 
   const fetchData = async () => {
-    const res = await getBlockUser(user.id, "");
+    const res = await getBlockUser(user?.id, "");
     if (res.statusCode === "200") {
       setBlockUser(res.data);
     }
@@ -20,7 +20,7 @@ export default function ListBlock() {
   }, []);
 
   const handleCancelBlock = async (blocked) => {
-    const res = await deleteBlockUser(user.id, blocked);
+    const res = await deleteBlockUser(user?.id, blocked);
     if (res.statusCode === "200") {
       fetchData();
     }

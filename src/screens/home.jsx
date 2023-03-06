@@ -12,8 +12,9 @@ export default function HomeScreen({ navigation }) {
   const { user, socket } = useContext(userContext);
   const [onlineUsers, setOnlineUsers] = useState([]);
   useEffect(() => {
+    console.log("add user ", user?.id);
     socket.emit("addUser", { id: user?.id, avatar: user?.avatar });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     socket.on("getUsers", (users) => {

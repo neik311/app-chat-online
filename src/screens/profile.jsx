@@ -21,7 +21,7 @@ const renderScene = SceneMap({
 });
 
 export default function ProfileScreen({ navigation }) {
-  const { user, socket } = useContext(userContext);
+  const { user, setUser, socket } = useContext(userContext);
 
   const layout = useWindowDimensions();
 
@@ -34,6 +34,7 @@ export default function ProfileScreen({ navigation }) {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
     await AsyncStorage.removeItem("refreshToken");
+    // setUser("");
     socket.disconnect();
     navigation.navigate("Login");
   };

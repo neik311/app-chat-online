@@ -14,7 +14,7 @@ const LoginScreen = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { setNotifi } = useContext(notifiContext);
-  const { setUser } = useContext(userContext);
+  const { user, setUser } = useContext(userContext);
 
   useEffect(() => {
     const checkLogin = async () => {
