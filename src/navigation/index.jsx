@@ -9,6 +9,7 @@ import MessengerScreen from "../screens/messenger";
 import SearchScreen from "../screens/searchUser";
 import ProfileScreen from "../screens/profile";
 import ForgotPasswordScreen from "../screens/forgotPassword";
+import ImageDetailScreen from "../screens/imageDetail";
 import { notifiContext } from "../context/notifiContext";
 import Notifi from "../components/Notifi";
 
@@ -33,6 +34,7 @@ function AppNavigation() {
             name="ForgotPassword"
             component={ForgotPasswordScreen}
           />
+          <Stack.Screen name="ImageDetail" component={ImageDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       {notifi[0] && <Notifi notifi={notifi} setNotifi={setNotifi} />}

@@ -9,6 +9,7 @@ export default function MessageImage({
   index,
   messages,
   setDeleteMes,
+  navigation,
 }) {
   let lineTime = false;
   if (index === messages.length - 1) {
@@ -32,8 +33,11 @@ export default function MessageImage({
             marginRight: 15,
             marginLeft: "auto",
           }}
-          onPress={() => {
+          onLongPress={() => {
             setDeleteMes(message.id);
+          }}
+          onPress={() => {
+            navigation.navigate("ImageDetail", { image: message.messages });
           }}
         >
           <Image
@@ -58,11 +62,14 @@ export default function MessageImage({
           </Text>
         </TouchableOpacity>
       ) : (
-        <View
+        <TouchableOpacity
           style={{
             width: 180,
             marginTop: 15,
             marginLeft: 10,
+          }}
+          onPress={() => {
+            navigation.navigate("ImageDetail", { image: message.messages });
           }}
         >
           <Image
@@ -85,7 +92,7 @@ export default function MessageImage({
           >
             {moment(message.createAt).format("hh:mm")}
           </Text>
-        </View>
+        </TouchableOpacity>
       )}
     </>
   );

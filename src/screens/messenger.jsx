@@ -215,6 +215,7 @@ export default function MessengerScreen({ navigation }) {
                     index={index}
                     messages={messages}
                     setDeleteMes={setDeleteMes}
+                    navigation={navigation}
                   />
                 )}
               </View>

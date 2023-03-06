@@ -50,7 +50,7 @@ export default function Message({
               paddingLeft: 10,
               color: "white",
             }}
-            onPress={() => {
+            onLongPress={() => {
               setDeleteMes(message.id);
             }}
           >
